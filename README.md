@@ -170,6 +170,24 @@ No CMake, no vcpkg, no NuGet packages.
 
 ---
 
+## Tests
+
+The solution includes a standalone test project `FileSystemManagerTests` with 58 tests covering the command parser, file manager, password hasher, and user repository.
+
+**Run from Visual Studio:** set `FileSystemManagerTests` as the startup project → `Ctrl+F5`.
+
+**Run from PowerShell (recommended before every push):**
+
+```powershell
+.\run_tests.ps1
+```
+
+The script finds MSBuild automatically via `vswhere`, builds the test project, and runs the executable. Exit code `0` means all tests passed.
+
+**Adding a test for a new command:** add a `TEST(FileManager_<Command>_...)` block in `FileSystemManagerTests/src/tests/FileManagerTests.h`. The `TEST()` macro registers it automatically — no changes to `main.cpp` or the vcxproj needed.
+
+---
+
 ## Design Decisions
 
 ### SHA-256 from scratch
