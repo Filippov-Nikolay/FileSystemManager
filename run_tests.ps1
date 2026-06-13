@@ -4,7 +4,7 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# ── Найти MSBuild ─────────────────────────────────────────────────────────────
+# -- Найти MSBuild ---------------------------------------------------------------
 
 $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
 
@@ -21,7 +21,7 @@ if (-not $msbuild) {
 
 Write-Host "MSBuild: $msbuild" -ForegroundColor Cyan
 
-# ── Сборка ────────────────────────────────────────────────────────────────────
+# -- Сборка ----------------------------------------------------------------------
 
 Write-Host "`nСборка тестов..." -ForegroundColor Cyan
 
@@ -37,7 +37,7 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# ── Запуск тестов ─────────────────────────────────────────────────────────────
+# -- Запуск тестов ---------------------------------------------------------------
 
 Write-Host "`nЗапуск тестов..." -ForegroundColor Cyan
 
@@ -54,4 +54,4 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Write-Host "`nВсё готово — можно пушить." -ForegroundColor Green
+Write-Host "`nВсё готово - можно пушить." -ForegroundColor Green
