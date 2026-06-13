@@ -1,5 +1,7 @@
 # FileSystemManager
 
+![CI](https://github.com/Filippov-Nikolay/FileSystemManager/actions/workflows/ci.yml/badge.svg)
+
 A console-based file manager with multi-user authentication, written in C++17 with **zero external dependencies**.
 
 Users are isolated inside a sandbox `workspace/` directory — no operation can escape it. The CLI features tab autocomplete, persistent command history, and password masking.

@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build tests
+        run: |
+          msbuild FileSystemManagerTests\FileSystemManagerTests.vcxproj `
+            /p:Configuration=Debug `
+            /p:Platform=x64 `
+            /m `
+            /nologo `
+            /verbosity:minimal
+
+      - name: Run tests
+        run: FileSystemManagerTests\x64\Debug\FileSystemManagerTests.exe
