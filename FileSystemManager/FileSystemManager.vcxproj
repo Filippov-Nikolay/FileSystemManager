@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -127,21 +128,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FileManager.cpp" />
-    <ClCompile Include="Log.cpp" />
-    <ClCompile Include="LogUs.cpp" />
-    <ClCompile Include="User.cpp" />
-    <ClCompile Include="Users.cpp" />
+    <ClCompile Include="src\file_system\CommandDispatcher.cpp" />
+    <ClCompile Include="src\file_system\CommandParser.cpp" />
+    <ClCompile Include="src\auth\AuthService.cpp" />
+    <ClCompile Include="src\auth\PasswordHasher.cpp" />
+    <ClCompile Include="src\file_system\FileManager.cpp" />
+    <ClCompile Include="src\app\Application.cpp" />
+    <ClCompile Include="src\logging\Logger.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\auth\UserRepository.cpp" />
+    <ClCompile Include="src\utils\ReadLine.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FileManager.h" />
-    <ClInclude Include="Log.h" />
-    <ClInclude Include="LogUs.h" />
-    <ClInclude Include="User.h" />
-    <ClInclude Include="Users.h" />
+    <ClInclude Include="src\file_system\CommandDispatcher.h" />
+    <ClInclude Include="src\file_system\Command.h" />
+    <ClInclude Include="src\file_system\CommandParser.h" />
+    <ClInclude Include="src\auth\AuthService.h" />
+    <ClInclude Include="src\auth\PasswordHasher.h" />
+    <ClInclude Include="src\utils\ReadLine.h" />
+    <ClInclude Include="src\file_system\FileManager.h" />
+    <ClInclude Include="src\app\Application.h" />
+    <ClInclude Include="src\logging\Logger.h" />
+    <ClInclude Include="src\auth\User.h" />
+    <ClInclude Include="src\auth\UserRepository.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <None Include="commands.md" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

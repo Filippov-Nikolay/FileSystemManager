@@ -13,42 +13,100 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{85115f94-eb39-41ae-a622-bc8ebe64a279}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\app">
+      <UniqueIdentifier>{2e6edcb8-250b-4e36-9b73-e2a4db29b60d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\auth">
+      <UniqueIdentifier>{0b883375-0b43-48e5-88fa-478b9afcc7d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\file_system">
+      <UniqueIdentifier>{9430a926-3a61-48c9-adb9-e2b0b3d71a8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\logging">
+      <UniqueIdentifier>{fcfaf55f-a9ac-4218-9d00-e16a21d14037}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\utils">
+      <UniqueIdentifier>{9927ee1b-c6c8-40e4-899e-57fecc1c4bac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="docs">
+      <UniqueIdentifier>{f1937d8b-6ff6-460e-9fca-68441e823a64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tests">
+      <UniqueIdentifier>{5aad74f1-dedf-4dae-93d8-a0ace9e3e0fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Users.cpp">
+    <ClCompile Include="src\auth\AuthService.cpp">
+      <Filter>src\auth</Filter>
+    </ClCompile>
+    <ClCompile Include="src\auth\PasswordHasher.cpp">
+      <Filter>src\auth</Filter>
+    </ClCompile>
+    <ClCompile Include="src\auth\UserRepository.cpp">
+      <Filter>src\auth</Filter>
+    </ClCompile>
+    <ClCompile Include="src\file_system\FileManager.cpp">
+      <Filter>src\file_system</Filter>
+    </ClCompile>
+    <ClCompile Include="src\app\Application.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="LogUs.cpp">
+    <ClCompile Include="src\logging\Logger.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="User.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="FileManager.cpp">
+    <ClCompile Include="src\file_system\CommandParser.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Log.cpp">
+    <ClCompile Include="src\utils\ReadLine.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\file_system\CommandDispatcher.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Users.h">
+    <ClInclude Include="src\auth\User.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="LogUs.h">
+    <ClInclude Include="src\file_system\FileManager.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="User.h">
+    <ClInclude Include="src\logging\Logger.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="FileManager.h">
+    <ClInclude Include="src\app\Application.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Log.h">
+    <ClInclude Include="src\auth\UserRepository.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\auth\AuthService.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\auth\PasswordHasher.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\ReadLine.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\file_system\CommandParser.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\file_system\Command.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\file_system\CommandDispatcher.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <None Include="README.md" />
+    <None Include="commands.md" />
   </ItemGroup>
 </Project>
