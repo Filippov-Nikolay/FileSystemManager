@@ -6,14 +6,14 @@ using namespace std;
 
 class Users {
 protected:
-	LogUs* logUs; // Лог
-	string firstName; // Имя
-	string lastName; // Фамилия
-	string login; // Логин
-	string password; // Пароль
+	LogUs* logUs;			// Лог
+	string firstName;		// Имя
+	string lastName;		// Фамилия
+	string login;			// Логин
+	string password;		// Пароль
 
 	bool firstEntry = true; // Первый вход
-	bool access; // Доступ
+	bool access;			// Доступ
 public:
 	static unsigned int id;
 

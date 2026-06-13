@@ -127,7 +127,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FileManager 15.05.2023.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="LogUs.cpp" />

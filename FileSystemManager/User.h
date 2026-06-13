@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include "Users.h"
 
 class User : public Users {
@@ -10,8 +10,8 @@ public:
 	void Print() const;
 
 
-	// Аксессоры
-	// Геттеры
+	// РђРєСЃРµСЃСЃРѕСЂС‹
+	// Р“РµС‚С‚РµСЂС‹
 	string GetFirstName() const;
 	string GetLastName() const;
 	string GetLogin() const;
@@ -23,7 +23,7 @@ public:
 	bool GetAccess() const;
 
 
-	// Сеттеры
+	// РЎРµС‚С‚РµСЂС‹
 	void SetFirstName(string);
 	void SetLastName(string);
 	void SetLogin(string);

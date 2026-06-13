@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FileManager 15.05.2023.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="Users.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
