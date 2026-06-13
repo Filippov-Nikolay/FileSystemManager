@@ -78,7 +78,7 @@ File manager closed.
 | Tab autocomplete | Commands on first token, filesystem paths on arguments; case-insensitive |
 | Command history | ↑/↓ navigation; persisted to `history.txt` across sessions |
 | Password masking | Input echoed as `*`; Backspace works; extended keys skipped |
-| 23 commands | Create, rename, copy, move, delete, list, size, read, write, append, search |
+| 22 commands | Create, rename, copy, move, delete, list, size, read, write, append, search |
 
 ---
 
@@ -88,15 +88,15 @@ File manager closed.
 ┌─────────────────────────────────────────┐
 │               Application               │  ← orchestrator (app/)
 │   RunAuthLoop()   RunFileManagerLoop()  │
-└────────┬──────────────────┬────────────┘
+└────────┬──────────────────┬─────────────┘
          │                  │
-┌────────▼───────┐  ┌───────▼──────────────────────┐
-│   auth/        │  │   file_system/               │
+┌────────▼───────┐  ┌───────▼───────────────────────┐
+│   auth/        │  │   file_system/                │
 │  AuthService   │  │  CommandDispatcher            │
 │  UserRepository│  │    └─ unordered_map handlers  │
 │  PasswordHasher│  │  CommandParser  (tokenizer)   │
 └────────────────┘  │  FileManager    (FS + sandbox)│
-                    └──────────────────────────────┘
+                    └───────────────────────────────┘
          │                  │
 ┌────────▼──────────────────▼────────────┐
 │   logging/Logger     utils/ReadLine    │  ← shared infrastructure
@@ -142,7 +142,7 @@ File manager closed.
 |---|---|---|
 | `pwd` | — | Print current directory |
 | `cd` | `[path]` | Change directory (no arg → workspace root) |
-| `shmsk` | `[path] <mask>` | Recursive search by extension (e.g. `*.txt`) |
+| `shmsk` | `[path] <mask>` | Recursive glob search (`*`, `?` wildcards, e.g. `*.txt`, `notes_?.md`) |
 
 ### System
 
@@ -156,7 +156,7 @@ File manager closed.
 
 ## Build
 
-**Requirements:** Visual Studio 2022, C++17, Windows 10+
+**Requirements:** Visual Studio 2017 or newer, C++17, Windows 10+
 
 1. Open `FileSystemManager.sln`
 2. Select configuration: `Debug` or `Release`, platform `x64`
@@ -174,7 +174,7 @@ No CMake, no vcpkg, no NuGet packages.
 The standard library has no hashing. Rather than pulling in OpenSSL or Botan for a single function, SHA-256 was implemented in ~90 lines following FIPS 180-4. All helpers (`BigSigma`, `SmSigma`, `Ch`, `Maj`) are `constexpr`; `ProcessBlock` lives in an anonymous namespace. This keeps the build self-contained and demonstrates understanding of the algorithm.
 
 ### `std::unordered_map` command dispatch
-The original `if-else if` chain grew linearly with each command. The map-based dispatcher (`CommandDispatcher`) registers all 23 handlers in `RegisterCommands()` as lambdas. Adding a new command is a single entry. `GetCommandNames()` returns the sorted keys — the only source of truth consumed by both tab completion and `ShowHelp`.
+The original `if-else if` chain grew linearly with each command. The map-based dispatcher (`CommandDispatcher`) registers all 22 handlers in `RegisterCommands()` as lambdas. Adding a new command is a single entry. `GetCommandNames()` returns the sorted keys — the only source of truth consumed by both tab completion and `ShowHelp`.
 
 ### `ShowHelp` built from handler metadata
 Each handler entry carries `usage` and `description` strings. `ShowHelp` iterates a hardcoded category list and looks up metadata from the map. There is no duplicated command listing — the description lives exactly once.
@@ -209,26 +209,38 @@ using Completer = std::function<std::vector<std::string>(const std::string& pref
 ## Project Structure
 
 ```
-FileSystemManager/
-├── src/
-│   ├── main.cpp
-│   ├── app/
-│   │   ├── Application.h
-│   │   └── Application.cpp
-│   ├── auth/
-│   │   ├── User.h
-│   │   ├── AuthService.h / .cpp
-│   │   ├── UserRepository.h / .cpp
-│   │   └── PasswordHasher.h / .cpp
-│   ├── file_system/
-│   │   ├── Command.h
-│   │   ├── CommandParser.h / .cpp
-│   │   ├── CommandDispatcher.h / .cpp
-│   │   └── FileManager.h / .cpp
-│   ├── logging/
-│   │   └── Logger.h / .cpp
-│   └── utils/
-│       └── ReadLine.h / .cpp
+├── README.md
 ├── FileSystemManager.sln
-└── FileSystemManager.vcxproj
+├── FileSystemManager/
+│   ├── FileSystemManager.vcxproj
+│   ├── commands.md
+│   └── src/
+│       ├── main.cpp
+│       ├── app/
+│       │   ├── Application.h
+│       │   └── Application.cpp
+│       ├── auth/
+│       │   ├── User.h
+│       │   ├── AuthService.h / .cpp
+│       │   ├── UserRepository.h / .cpp
+│       │   └── PasswordHasher.h / .cpp
+│       ├── file_system/
+│       │   ├── Command.h
+│       │   ├── CommandParser.h / .cpp
+│       │   ├── CommandDispatcher.h / .cpp
+│       │   └── FileManager.h / .cpp
+│       ├── logging/
+│       │   └── Logger.h / .cpp
+│       └── utils/
+│           └── ReadLine.h / .cpp
+└── FileSystemManagerTests/
+    ├── FileSystemManagerTests.vcxproj
+    └── src/
+        ├── main.cpp
+        └── tests/
+            ├── TestFramework.h
+            ├── CommandParserTests.h
+            ├── FileManagerTests.h
+            ├── PasswordHasherTests.h
+            └── UserRepositoryTests.h
 ```
