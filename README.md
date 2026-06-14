@@ -4,13 +4,13 @@
 
 ![CI](https://github.com/Filippov-Nikolay/FileSystemManager/actions/workflows/ci.yml/badge.svg)
 
-A console-based file manager with multi-user authentication, written in C++17 with **zero external dependencies**.
+Консольный файловый менеджер с многопользовательской аутентификацией, написан на C++17 **без внешних зависимостей**.
 
-Users are isolated inside a sandbox `workspace/` directory — no operation can escape it. The CLI features tab autocomplete, persistent command history, and password masking.
+Каждый пользователь изолирован внутри sandbox-директории `workspace/` — ни одна операция не может выйти за её пределы. CLI поддерживает Tab-автодополнение, постоянную историю команд и маскировку пароля.
 
 ---
 
-## Demo
+## Демо
 
 ```
 FileSystemManager.exe
@@ -64,7 +64,6 @@ alice@workspace> shmsk *.txt
 
 alice@workspace> rmf projects\notes.txt
 Delete file 'projects\notes.txt'? [y/N] y
-
 File deleted successfully.
 
 alice@workspace> clfm
@@ -73,196 +72,206 @@ File manager closed.
 
 ---
 
-## Features
+## Возможности
 
-| Feature | Details |
+| Возможность | Описание |
 |---|---|
-| Authentication | Register / login with SHA-256 + random salt password hashing |
-| Sandbox | All FS operations confined to `workspace/`; traversal attacks blocked |
-| Tab autocomplete | Commands on first token, filesystem paths on arguments; case-insensitive |
-| Command history | ↑/↓ navigation; persisted to `history.txt` across sessions |
-| Password masking | Input echoed as `*`; Backspace works; extended keys skipped |
-| 22 commands | Create, rename, copy, move, delete, list, size, read, write, append, search |
+| Аутентификация | Регистрация и вход с хешированием паролей SHA-256 + случайная соль |
+| Sandbox | Все операции ограничены директорией `workspace/`; traversal-атаки заблокированы |
+| Tab-автодополнение | Команды на первом токене, пути — на аргументах; без учёта регистра |
+| История команд | Навигация ↑/↓; сохраняется в `history.txt` между сессиями |
+| Маскировка пароля | Ввод отображается как `*`; Backspace работает; специальные клавиши игнорируются |
+| 22 команды | Создание, переименование, копирование, перемещение, удаление, просмотр, размер, чтение, запись, поиск |
 
 ---
 
-## Architecture
+## Архитектура
 
 ```
-┌─────────────────────────────────────────┐
-│               Application               │  ← orchestrator (app/)
-│   RunAuthLoop()   RunFileManagerLoop()  │
-└────────┬──────────────────┬─────────────┘
-         │                  │
-┌────────▼───────┐  ┌───────▼───────────────────────┐
-│   auth/        │  │   file_system/                │
-│  AuthService   │  │  CommandDispatcher            │
-│  UserRepository│  │    └─ unordered_map handlers  │
-│  PasswordHasher│  │  CommandParser  (tokenizer)   │
-└────────────────┘  │  FileManager    (FS + sandbox)│
-                    └───────────────────────────────┘
-         │                  │
-┌────────▼──────────────────▼────────────┐
-│   logging/Logger     utils/ReadLine    │  ← shared infrastructure
-│   (RAII ofstream)    (Tab + history)   │
-└────────────────────────────────────────┘
++------------------------------------------+
+|              Application                 |  <- оркестратор (app/)
+|  RunAuthLoop()   RunFileManagerLoop()    |
++--------+-----------------+---------------+
+         |                 |
++--------v--------+ +------v------------------------------+
+|   auth/         | |   file_system/                     |
+|  AuthService    | |  CommandDispatcher                 |
+|  UserRepository | |    +- unordered_map handlers       |
+|  PasswordHasher | |  CommandParser  (токенизатор)      |
++-----------------+ |  FileManager    (FS + sandbox)     |
+                    +------------------------------------+
+         |                 |
++--------v-----------------v---------+
+|   logging/Logger   utils/ReadLine  |  <- общая инфраструктура
+|   (RAII ofstream)  (Tab + история) |
++------------------------------------+
 ```
 
-**Dependency rule:** every arrow points downward. No circular dependencies. Each layer only knows about layers below it.
+**Правило зависимостей:** каждая стрелка направлена вниз. Нет циклических зависимостей. Каждый слой знает только о слоях ниже него.
 
 ---
 
-## Commands
+## Команды
 
-### Directories
+### Директории
 
-| Command | Arguments | Description |
+| Команда | Аргументы | Описание |
 |---|---|---|
-| `crdr` | `<path>` | Create directory |
-| `rndr` | `<from> <to>` | Rename directory |
-| `cpdr` | `<from> <to>` | Copy directory (recursive) |
-| `mvdr` | `<from> <to>` | Move directory |
-| `rmdr` | `<path>` | Delete directory (asks y/N) |
-| `lsdr` | `[path]` | List directory contents (default: current) |
-| `szdr` | `[path]` | Show total directory size (default: current) |
+| `crdr` | `<path>` | Создать директорию |
+| `rndr` | `<from> <to>` | Переименовать директорию |
+| `cpdr` | `<from> <to>` | Копировать директорию (рекурсивно) |
+| `mvdr` | `<from> <to>` | Переместить директорию |
+| `rmdr` | `<path>` | Удалить директорию (запрашивает y/N) |
+| `lsdr` | `[path]` | Показать содержимое директории (по умолчанию: текущая) |
+| `szdr` | `[path]` | Показать размер директории (по умолчанию: текущая) |
 
-### Files
+### Файлы
 
-| Command | Arguments | Description |
+| Команда | Аргументы | Описание |
 |---|---|---|
-| `crf` | `<path>` | Create empty file |
-| `rnf` | `<from> <to>` | Rename file |
-| `cpf` | `<from> <to>` | Copy file |
-| `mvf` | `<from> <to>` | Move file |
-| `rmf` | `<path>` | Delete file (asks y/N) |
-| `szf` | `<path>` | Show file size in bytes |
-| `cat` | `<path>` | Print file contents |
-| `write` | `<path> <text>` | Write one line to file (overwrites) |
-| `append` | `<path> <text>` | Append one line to file |
+| `crf` | `<path>` | Создать пустой файл |
+| `rnf` | `<from> <to>` | Переименовать файл |
+| `cpf` | `<from> <to>` | Копировать файл |
+| `mvf` | `<from> <to>` | Переместить файл |
+| `rmf` | `<path>` | Удалить файл (запрашивает y/N) |
+| `szf` | `<path>` | Показать размер файла в байтах |
+| `cat` | `<path>` | Вывести содержимое файла |
+| `write` | `<path> <text>` | Записать строку в файл (перезаписывает) |
+| `append` | `<path> <text>` | Дописать строку в конец файла |
 
-### Navigation
+### Навигация
 
-| Command | Arguments | Description |
+| Команда | Аргументы | Описание |
 |---|---|---|
-| `pwd` | — | Print current directory |
-| `cd` | `[path]` | Change directory (no arg → workspace root) |
-| `shmsk` | `[path] <mask>` | Recursive glob search (`*`, `?` wildcards, e.g. `*.txt`, `notes_?.md`) |
+| `pwd` | — | Показать текущую директорию |
+| `cd` | `[path]` | Сменить директорию (без аргумента → корень workspace) |
+| `shmsk` | `[path] <mask>` | Рекурсивный поиск по glob-маске (символы `*`, `?`, например `*.txt`, `notes_?.md`) |
 
-### System
+### Система
 
-| Command | Description |
+| Команда | Описание |
 |---|---|
-| `help` | Show all commands |
-| `clear` | Clear the screen |
-| `clfm` | Exit file manager |
+| `help` | Показать все команды |
+| `clear` | Очистить экран |
+| `clfm` | Выйти из файлового менеджера |
 
 ---
 
-## Build
+## Сборка
 
-**Requirements:** Visual Studio 2017 or newer, C++17, Windows 10+
+**Требования:** Visual Studio 2017 или новее, C++17, Windows 10+
 
-1. Open `FileSystemManager.sln`
-2. Select configuration: `Debug` or `Release`, platform `x64`
-3. Build → `Ctrl+Shift+B`
+1. Открыть `FileSystemManager.sln`
+2. Выбрать конфигурацию: `Debug` или `Release`, платформа `x64`
+3. Собрать → `Ctrl+Shift+B`
 
-The executable is written to `x64\Debug\` or `x64\Release\`. Run it from the project root so that `users.txt`, `logs.txt`, and `history.txt` are created in the same directory as the `.sln`.
+Исполняемый файл создаётся в `x64\Debug\` или `x64\Release\`. Запускать из корня проекта, чтобы `users.txt`, `logs.txt` и `history.txt` создавались рядом с `.sln`.
 
-No CMake, no vcpkg, no NuGet packages.
+Никакого CMake, vcpkg или NuGet-пакетов.
 
 ---
 
-## Tests
+## Тесты
 
-The solution includes a standalone test project `FileSystemManagerTests` with 58 tests covering the command parser, file manager, password hasher, and user repository.
+Решение включает отдельный тестовый проект `FileSystemManagerTests` с покрытием всех ключевых модулей.
 
-**Run from Visual Studio:** set `FileSystemManagerTests` as the startup project → `Ctrl+F5`.
+| Файл | Тестов | Что покрывает |
+|---|---|---|
+| `CommandParserTests.h` | 10 | Пустой ввод, пробелы, кавычки, смешанные аргументы |
+| `CommandDispatcherTests.h` | 30 | Все 22 команды, подтверждение удаления, dispatch-поведение |
+| `FileManagerTests.h` | 30 | Операции с файлами и директориями, traversal-защита, SearchByMask |
+| `PasswordHasherTests.h` | 11 | Формат соли, верный/неверный пароль, legacy SHA-256 fallback |
+| `UserRepositoryTests.h` | 7 | Сохранение, отклонение дубликата, сохранность полей |
 
-**Run from PowerShell (recommended before every push):**
+**Запуск из Visual Studio:** установить `FileSystemManagerTests` как стартовый проект → `Ctrl+F5`.
+
+**Запуск из PowerShell (рекомендуется перед каждым push):**
 
 ```powershell
 .\run_tests.ps1
 ```
 
-The script finds MSBuild automatically via `vswhere`, builds the test project, and runs the executable. Exit code `0` means all tests passed.
+Скрипт автоматически находит MSBuild через `vswhere`, собирает тестовый проект и запускает исполняемый файл. Код выхода `0` означает, что все тесты прошли.
 
-**Adding a test for a new command:** add a `TEST(FileManager_<Command>_...)` block in `FileSystemManagerTests/src/tests/FileManagerTests.h`. The `TEST()` macro registers it automatically — no changes to `main.cpp` or the vcxproj needed.
+**Добавление теста для новой команды:** добавить блок `TEST(Dispatcher_<Command>_...)` в `FileSystemManagerTests/src/tests/CommandDispatcherTests.h`. Макрос `TEST()` регистрирует его автоматически — изменений в `main.cpp` или vcxproj не требуется.
 
 ---
 
-## Design Decisions
+## Архитектурные решения
 
-### SHA-256 from scratch
-The standard library has no hashing. Rather than pulling in OpenSSL or Botan for a single function, SHA-256 was implemented in ~90 lines following FIPS 180-4. All helpers (`BigSigma`, `SmSigma`, `Ch`, `Maj`) are `constexpr`; `ProcessBlock` lives in an anonymous namespace. This keeps the build self-contained and demonstrates understanding of the algorithm.
+### SHA-256 с нуля
+В стандартной библиотеке нет хеширования. Вместо подключения OpenSSL или Botan ради одной функции SHA-256 реализован в ~90 строках по спецификации FIPS 180-4. Все вспомогательные функции (`BigSigma`, `SmSigma`, `Ch`, `Maj`) — `constexpr`; `ProcessBlock` находится в анонимном пространстве имён. Сборка остаётся полностью автономной.
 
-### `std::unordered_map` command dispatch
-The original `if-else if` chain grew linearly with each command. The map-based dispatcher (`CommandDispatcher`) registers all 22 handlers in `RegisterCommands()` as lambdas. Adding a new command is a single entry. `GetCommandNames()` returns the sorted keys — the only source of truth consumed by both tab completion and `ShowHelp`.
+### Диспетчер команд на `std::unordered_map`
+Первоначальная цепочка `if-else if` росла линейно с каждой командой. Диспетчер на основе map (`CommandDispatcher`) регистрирует все 22 обработчика в `RegisterCommands()` как лямбды. Добавление новой команды — одна запись. `GetCommandNames()` возвращает отсортированные ключи — единственный источник истины для Tab-автодополнения и `ShowHelp`.
 
-### `ShowHelp` built from handler metadata
-Each handler entry carries `usage` and `description` strings. `ShowHelp` iterates a hardcoded category list and looks up metadata from the map. There is no duplicated command listing — the description lives exactly once.
+### `ShowHelp` из метаданных обработчиков
+Каждая запись обработчика содержит строки `usage` и `description`. `ShowHelp` перебирает список категорий и читает метаданные из map. Дублирования описаний нет — каждое описание живёт ровно в одном месте.
 
-### `std::optional<User>` session
-`RunAuthLoop()` returns `std::optional<User>`. The caller checks with `if (!user)` rather than a boolean flag plus a separate object. `nullopt` means "exit" — no sentinel values.
+### `std::optional<User>` для сессии
+`RunAuthLoop()` возвращает `std::optional<User>`. Вызывающий код проверяет `if (!user)` вместо булевого флага и отдельного объекта. `nullopt` означает "выход" — никаких sentinel-значений.
 
-### Directory traversal protection via path iterators
-`ResolvePath` calls `fs::weakly_canonical` then compares the result against `rootPath` component-by-component using `path::iterator`. A string-based check (e.g. `find("/workspace")`) would allow `../workspace2` to pass. The iterator comparison is immune to this class of bypass.
+### Защита от directory traversal через path iterator
+`ResolvePath` вызывает `fs::weakly_canonical`, затем сравнивает результат с `rootPath` компонент за компонентом через `path::iterator`. Строковая проверка (например, `find("/workspace")`) пропустила бы `../workspace2`. Сравнение через итератор устойчиво к этому классу обходов.
 
-### `Completer` as a typed alias
+### `Completer` как типизированный псевдоним
 ```cpp
 using Completer = std::function<std::vector<std::string>(const std::string& prefix,
                                                           const std::string& linePrefix)>;
 ```
-`linePrefix` lets `ReadLine` stay generic — it doesn't know what a "command" is. The caller in `Application` decides: empty prefix → command names, non-empty → filesystem paths.
+`linePrefix` позволяет `ReadLine` оставаться универсальным — он не знает, что такое "команда". `Application` сам решает: пустой prefix → имена команд, непустой → пути файловой системы.
 
 ---
 
-## Security Notes
+## Безопасность
 
-**Passwords are hashed, not stored in plaintext.** Each password is salted with 16 random bytes before SHA-256 hashing. The stored entry has the form `<hex-salt>:<hex-hash>`. Legacy entries without a salt delimiter are handled transparently by the `Verify` fallback.
+**Пароли хранятся в хешированном виде, не в открытом тексте.** Каждый пароль солится 16 случайными байтами перед SHA-256-хешированием. Хранимая запись имеет вид `<hex-соль>:<hex-хеш>`. Устаревшие записи без разделителя соли обрабатываются прозрачно через fallback в `Verify`.
 
-**Known limitations (acceptable for a portfolio project):**
+**Известные ограничения (приемлемо для портфолио-проекта):**
 
-- SHA-256 is a fast hash. In production, use PBKDF2, bcrypt, or Argon2 to make brute-force attacks computationally expensive. This project avoids external libraries by design.
-- `users.txt` has no locking. Concurrent processes writing simultaneously can corrupt the file.
-- The salt is generated with `std::mt19937` seeded from `std::random_device`. On most platforms `random_device` provides cryptographic-quality entropy; on some older MinGW builds it does not. For production use `BCryptGenRandom` (Windows) or `/dev/urandom` directly.
+- SHA-256 — быстрый хеш. В продакшене следует использовать PBKDF2, bcrypt или Argon2, чтобы сделать брутфорс вычислительно дорогим. Этот проект избегает внешних библиотек намеренно.
+- `users.txt` не имеет блокировки. Одновременная запись из нескольких процессов может повредить файл.
+- Соль генерируется `std::mt19937`, инициализированным из `std::random_device`. На большинстве платформ `random_device` предоставляет криптографически качественную энтропию; на некоторых старых сборках MinGW — нет. Для продакшена следует использовать `BCryptGenRandom` (Windows) или `/dev/urandom` напрямую.
 
 ---
 
-## Project Structure
+## Структура проекта
 
 ```
-├── README.md
-├── FileSystemManager.sln
-├── FileSystemManager/
-│   ├── FileSystemManager.vcxproj
-│   ├── commands.md
-│   └── src/
-│       ├── main.cpp
-│       ├── app/
-│       │   ├── Application.h
-│       │   └── Application.cpp
-│       ├── auth/
-│       │   ├── User.h
-│       │   ├── AuthService.h / .cpp
-│       │   ├── UserRepository.h / .cpp
-│       │   └── PasswordHasher.h / .cpp
-│       ├── file_system/
-│       │   ├── Command.h
-│       │   ├── CommandParser.h / .cpp
-│       │   ├── CommandDispatcher.h / .cpp
-│       │   └── FileManager.h / .cpp
-│       ├── logging/
-│       │   └── Logger.h / .cpp
-│       └── utils/
-│           └── ReadLine.h / .cpp
-└── FileSystemManagerTests/
-    ├── FileSystemManagerTests.vcxproj
-    └── src/
-        ├── main.cpp
-        └── tests/
-            ├── TestFramework.h
-            ├── CommandParserTests.h
-            ├── FileManagerTests.h
-            ├── PasswordHasherTests.h
-            └── UserRepositoryTests.h
++-- README.md
++-- FileSystemManager.sln
++-- run_tests.ps1
++-- FileSystemManager/
+|   +-- FileSystemManager.vcxproj
+|   +-- commands.md
+|   +-- src/
+|       +-- main.cpp
+|       +-- app/
+|       |   +-- Application.h / .cpp
+|       +-- auth/
+|       |   +-- User.h
+|       |   +-- AuthService.h / .cpp
+|       |   +-- UserRepository.h / .cpp
+|       |   +-- PasswordHasher.h / .cpp
+|       +-- file_system/
+|       |   +-- Command.h
+|       |   +-- CommandParser.h / .cpp
+|       |   +-- CommandDispatcher.h / .cpp
+|       |   +-- FileManager.h / .cpp
+|       +-- logging/
+|       |   +-- Logger.h / .cpp
+|       +-- utils/
+|           +-- Color.h
+|           +-- ReadLine.h / .cpp
++-- FileSystemManagerTests/
+    +-- FileSystemManagerTests.vcxproj
+    +-- src/
+        +-- main.cpp
+        +-- tests/
+            +-- TestFramework.h
+            +-- CommandParserTests.h
+            +-- CommandDispatcherTests.h
+            +-- FileManagerTests.h
+            +-- PasswordHasherTests.h
+            +-- UserRepositoryTests.h
 ```
