@@ -1,5 +1,7 @@
 # FileSystemManager
 
+![banner](.github/assets/banner.png)
+
 ![CI](https://github.com/Filippov-Nikolay/FileSystemManager/actions/workflows/ci.yml/badge.svg)
 
 A console-based file manager with multi-user authentication, written in C++17 with **zero external dependencies**.
