@@ -141,6 +141,7 @@
   <!-- Production sources under test (no main.cpp, no ReadLine.cpp, no Application.cpp) -->
   <ItemGroup>
     <ClCompile Include="..\FileSystemManager\src\file_system\CommandParser.cpp" />
+    <ClCompile Include="..\FileSystemManager\src\file_system\CommandDispatcher.cpp" />
     <ClCompile Include="..\FileSystemManager\src\file_system\FileManager.cpp" />
     <ClCompile Include="..\FileSystemManager\src\logging\Logger.cpp" />
     <ClCompile Include="..\FileSystemManager\src\auth\PasswordHasher.cpp" />
@@ -150,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="src\tests\TestFramework.h" />
     <ClInclude Include="src\tests\CommandParserTests.h" />
+    <ClInclude Include="src\tests\CommandDispatcherTests.h" />
     <ClInclude Include="src\tests\FileManagerTests.h" />
     <ClInclude Include="src\tests\PasswordHasherTests.h" />
     <ClInclude Include="src\tests\UserRepositoryTests.h" />
