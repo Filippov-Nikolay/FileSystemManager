@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "../utils/Color.h"
 
 #include "../auth/AuthService.h"
 #include "../auth/UserRepository.h"
@@ -48,9 +49,9 @@ std::optional<User> Application::RunAuthLoop()
 
     while (true)
     {
-        std::cout << "1. Login\n";
-        std::cout << "2. Register\n";
-        std::cout << "3. Exit\n";
+        std::cout << Color::Cyan << "1." << Color::Reset << " Login\n";
+        std::cout << Color::Cyan << "2." << Color::Reset << " Register\n";
+        std::cout << Color::Cyan << "3." << Color::Reset << " Exit\n";
         std::cout << "Choose option: ";
 
         int option = 0;
@@ -127,14 +128,15 @@ void Application::RunFileManagerLoop(const User& user)
         return fileManager.GetCompletions(prefix);
     };
 
-    std::cout << "\nFile manager started.\n";
-    std::cout << "Type 'help' to show available commands.\n";
-    std::cout << "Type 'clfm' to close file manager.\n";
+    std::cout << '\n' << Color::Bold << Color::Cyan << "File manager started." << Color::Reset << '\n';
+    std::cout << "Type '" << Color::White << "help" << Color::Reset << "' to show available commands.\n";
+    std::cout << "Type '" << Color::White << "clfm" << Color::Reset << "' to close file manager.\n";
 
     while (true)
     {
         const std::string prompt =
-            "\n" + user.username + "@" + fileManager.GetDisplayPath() + "> ";
+            "\n" + std::string(Color::Cyan) + user.username + "@" +
+            fileManager.GetDisplayPath() + Color::Reset + "> ";
 
         const std::string input = ReadLine(prompt, completer, &history);
 

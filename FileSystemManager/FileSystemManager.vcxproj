@@ -145,6 +145,7 @@
     <ClInclude Include="src\file_system\CommandParser.h" />
     <ClInclude Include="src\auth\AuthService.h" />
     <ClInclude Include="src\auth\PasswordHasher.h" />
+    <ClInclude Include="src\utils\Color.h" />
     <ClInclude Include="src\utils\ReadLine.h" />
     <ClInclude Include="src\file_system\FileManager.h" />
     <ClInclude Include="src\app\Application.h" />

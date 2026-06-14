@@ -1,4 +1,5 @@
 #include "FileManager.h"
+#include "../utils/Color.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -99,12 +100,12 @@ bool FileManager::CreateDirectory(const std::string& path)
     try
     {
         const auto target = ResolvePath(path);
-        if (fs::exists(target)) { std::cout << "Directory already exists.\n"; return false; }
+        if (fs::exists(target)) { std::cout << Color::Yellow << "Directory already exists." << Color::Reset << '\n'; return false; }
         fs::create_directories(target);
-        std::cout << "Directory created successfully.\n";
+        std::cout << Color::Green << "Directory created successfully." << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::MoveOrRenameDirectory(const std::string& from, const std::string& where, const std::string& successMsg)
@@ -113,13 +114,13 @@ bool FileManager::MoveOrRenameDirectory(const std::string& from, const std::stri
     {
         const auto src = ResolvePath(from);
         const auto dst = ResolvePath(where);
-        if (!fs::exists(src) || !fs::is_directory(src)) { std::cout << "Source directory does not exist.\n"; return false; }
-        if (fs::exists(dst)) { std::cout << "Destination path already exists.\n"; return false; }
+        if (!fs::exists(src) || !fs::is_directory(src)) { std::cout << Color::Red << "Source directory does not exist." << Color::Reset << '\n'; return false; }
+        if (fs::exists(dst)) { std::cout << Color::Yellow << "Destination path already exists." << Color::Reset << '\n'; return false; }
         fs::rename(src, dst);
-        std::cout << successMsg << '\n';
+        std::cout << Color::Green << successMsg << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::RenameDirectory(const std::string& from, const std::string& where)
@@ -138,12 +139,12 @@ bool FileManager::CopyDirectory(const std::string& from, const std::string& wher
     {
         const auto src = ResolvePath(from);
         const auto dst = ResolvePath(where);
-        if (!fs::exists(src) || !fs::is_directory(src)) { std::cout << "Source directory does not exist.\n"; return false; }
+        if (!fs::exists(src) || !fs::is_directory(src)) { std::cout << Color::Red << "Source directory does not exist." << Color::Reset << '\n'; return false; }
         fs::copy(src, dst, fs::copy_options::recursive | fs::copy_options::overwrite_existing);
-        std::cout << "Directory copied successfully.\n";
+        std::cout << Color::Green << "Directory copied successfully." << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::DeleteDirectory(const std::string& path)
@@ -151,12 +152,12 @@ bool FileManager::DeleteDirectory(const std::string& path)
     try
     {
         const auto target = ResolvePath(path);
-        if (!fs::exists(target) || !fs::is_directory(target)) { std::cout << "Directory does not exist.\n"; return false; }
+        if (!fs::exists(target) || !fs::is_directory(target)) { std::cout << Color::Red << "Directory does not exist." << Color::Reset << '\n'; return false; }
         fs::remove_all(target);
-        std::cout << "Directory deleted successfully.\n";
+        std::cout << Color::Green << "Directory deleted successfully." << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::ListDirectory(const std::string& path)
@@ -164,17 +165,17 @@ bool FileManager::ListDirectory(const std::string& path)
     try
     {
         const auto target = ResolvePath(path);
-        if (!fs::exists(target) || !fs::is_directory(target)) { std::cout << "Directory does not exist.\n"; return false; }
+        if (!fs::exists(target) || !fs::is_directory(target)) { std::cout << Color::Red << "Directory does not exist." << Color::Reset << '\n'; return false; }
 
         for (const auto& entry : fs::directory_iterator(target))
         {
-            if      (entry.is_directory())    std::cout << "[DIR]   " << entry.path().filename().string() << '\n';
-            else if (entry.is_regular_file()) std::cout << "[FILE]  " << entry.path().filename().string() << '\n';
-            else                              std::cout << "[OTHER] " << entry.path().filename().string() << '\n';
+            if      (entry.is_directory())    std::cout << Color::Cyan  << "[DIR]  " << Color::Reset << ' ' << entry.path().filename().string() << '\n';
+            else if (entry.is_regular_file()) std::cout << Color::White << "[FILE] " << Color::Reset << ' ' << entry.path().filename().string() << '\n';
+            else                              std::cout << Color::Yellow << "[OTHER]" << Color::Reset << ' ' << entry.path().filename().string() << '\n';
         }
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::GetDirectorySize(const std::string& path)
@@ -182,11 +183,11 @@ bool FileManager::GetDirectorySize(const std::string& path)
     try
     {
         const auto target = ResolvePath(path);
-        if (!fs::exists(target) || !fs::is_directory(target)) { std::cout << "Directory does not exist.\n"; return false; }
-        std::cout << "Directory size: " << CalculateDirectorySize(target) << " bytes\n";
+        if (!fs::exists(target) || !fs::is_directory(target)) { std::cout << Color::Red << "Directory does not exist." << Color::Reset << '\n'; return false; }
+        std::cout << Color::Yellow << "Directory size: " << CalculateDirectorySize(target) << " bytes" << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 unsigned long long FileManager::CalculateDirectorySize(const fs::path& path)
@@ -204,14 +205,14 @@ bool FileManager::CreateFile(const std::string& path)
     try
     {
         const auto target = ResolvePath(path);
-        if (fs::exists(target)) { std::cout << "File already exists.\n"; return false; }
+        if (fs::exists(target)) { std::cout << Color::Yellow << "File already exists." << Color::Reset << '\n'; return false; }
         if (target.has_parent_path()) fs::create_directories(target.parent_path());
         std::ofstream file(target);
-        if (!file.is_open()) { std::cout << "Failed to create file.\n"; return false; }
-        std::cout << "File created successfully.\n";
+        if (!file.is_open()) { std::cout << Color::Red << "Failed to create file." << Color::Reset << '\n'; return false; }
+        std::cout << Color::Green << "File created successfully." << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::RenameFile(const std::string& from, const std::string& where)
@@ -220,14 +221,14 @@ bool FileManager::RenameFile(const std::string& from, const std::string& where)
     {
         const auto src = ResolvePath(from);
         const auto dst = ResolvePath(where);
-        if (!fs::exists(src) || !fs::is_regular_file(src)) { std::cout << "Source file does not exist.\n"; return false; }
-        if (fs::exists(dst)) { std::cout << "Destination file already exists.\n"; return false; }
+        if (!fs::exists(src) || !fs::is_regular_file(src)) { std::cout << Color::Red << "Source file does not exist." << Color::Reset << '\n'; return false; }
+        if (fs::exists(dst)) { std::cout << Color::Yellow << "Destination file already exists." << Color::Reset << '\n'; return false; }
         if (dst.has_parent_path()) fs::create_directories(dst.parent_path());
         fs::rename(src, dst);
-        std::cout << "File renamed successfully.\n";
+        std::cout << Color::Green << "File renamed successfully." << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::CopyFile(const std::string& from, const std::string& where)
@@ -236,13 +237,13 @@ bool FileManager::CopyFile(const std::string& from, const std::string& where)
     {
         const auto src = ResolvePath(from);
         const auto dst = ResolvePath(where);
-        if (!fs::exists(src) || !fs::is_regular_file(src)) { std::cout << "Source file does not exist.\n"; return false; }
+        if (!fs::exists(src) || !fs::is_regular_file(src)) { std::cout << Color::Red << "Source file does not exist." << Color::Reset << '\n'; return false; }
         if (dst.has_parent_path()) fs::create_directories(dst.parent_path());
         fs::copy_file(src, dst, fs::copy_options::overwrite_existing);
-        std::cout << "File copied successfully.\n";
+        std::cout << Color::Green << "File copied successfully." << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::MoveFile(const std::string& from, const std::string& where)
@@ -251,14 +252,14 @@ bool FileManager::MoveFile(const std::string& from, const std::string& where)
     {
         const auto src = ResolvePath(from);
         const auto dst = ResolvePath(where);
-        if (!fs::exists(src) || !fs::is_regular_file(src)) { std::cout << "Source file does not exist.\n"; return false; }
-        if (fs::exists(dst)) { std::cout << "Destination file already exists.\n"; return false; }
+        if (!fs::exists(src) || !fs::is_regular_file(src)) { std::cout << Color::Red << "Source file does not exist." << Color::Reset << '\n'; return false; }
+        if (fs::exists(dst)) { std::cout << Color::Yellow << "Destination file already exists." << Color::Reset << '\n'; return false; }
         if (dst.has_parent_path()) fs::create_directories(dst.parent_path());
         fs::rename(src, dst);
-        std::cout << "File moved successfully.\n";
+        std::cout << Color::Green << "File moved successfully." << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::DeleteFile(const std::string& path)
@@ -266,12 +267,12 @@ bool FileManager::DeleteFile(const std::string& path)
     try
     {
         const auto target = ResolvePath(path);
-        if (!fs::exists(target) || !fs::is_regular_file(target)) { std::cout << "File does not exist.\n"; return false; }
+        if (!fs::exists(target) || !fs::is_regular_file(target)) { std::cout << Color::Red << "File does not exist." << Color::Reset << '\n'; return false; }
         fs::remove(target);
-        std::cout << "File deleted successfully.\n";
+        std::cout << Color::Green << "File deleted successfully." << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::GetFileSize(const std::string& path)
@@ -279,11 +280,11 @@ bool FileManager::GetFileSize(const std::string& path)
     try
     {
         const auto target = ResolvePath(path);
-        if (!fs::exists(target) || !fs::is_regular_file(target)) { std::cout << "File does not exist.\n"; return false; }
-        std::cout << "File size: " << fs::file_size(target) << " bytes\n";
+        if (!fs::exists(target) || !fs::is_regular_file(target)) { std::cout << Color::Red << "File does not exist." << Color::Reset << '\n'; return false; }
+        std::cout << Color::Yellow << "File size: " << fs::file_size(target) << " bytes" << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::ReadFile(const std::string& path)
@@ -291,14 +292,14 @@ bool FileManager::ReadFile(const std::string& path)
     try
     {
         const auto target = ResolvePath(path);
-        if (!fs::exists(target) || !fs::is_regular_file(target)) { std::cout << "File does not exist.\n"; return false; }
+        if (!fs::exists(target) || !fs::is_regular_file(target)) { std::cout << Color::Red << "File does not exist." << Color::Reset << '\n'; return false; }
         std::ifstream file(target);
-        if (!file.is_open()) { std::cout << "Failed to open file.\n"; return false; }
+        if (!file.is_open()) { std::cout << Color::Red << "Failed to open file." << Color::Reset << '\n'; return false; }
         std::string line;
         while (std::getline(file, line)) std::cout << line << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::WriteFile(const std::string& path, const std::string& content)
@@ -308,12 +309,12 @@ bool FileManager::WriteFile(const std::string& path, const std::string& content)
         const auto target = ResolvePath(path);
         if (target.has_parent_path()) fs::create_directories(target.parent_path());
         std::ofstream file(target, std::ios::trunc);
-        if (!file.is_open()) { std::cout << "Failed to open file for writing.\n"; return false; }
+        if (!file.is_open()) { std::cout << Color::Red << "Failed to open file for writing." << Color::Reset << '\n'; return false; }
         file << content << '\n';
-        std::cout << "File written successfully.\n";
+        std::cout << Color::Green << "File written successfully." << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 bool FileManager::AppendFile(const std::string& path, const std::string& content)
@@ -321,14 +322,14 @@ bool FileManager::AppendFile(const std::string& path, const std::string& content
     try
     {
         const auto target = ResolvePath(path);
-        if (!fs::exists(target) || !fs::is_regular_file(target)) { std::cout << "File does not exist.\n"; return false; }
+        if (!fs::exists(target) || !fs::is_regular_file(target)) { std::cout << Color::Red << "File does not exist." << Color::Reset << '\n'; return false; }
         std::ofstream file(target, std::ios::app);
-        if (!file.is_open()) { std::cout << "Failed to open file for appending.\n"; return false; }
+        if (!file.is_open()) { std::cout << Color::Red << "Failed to open file for appending." << Color::Reset << '\n'; return false; }
         file << content << '\n';
-        std::cout << "Content appended successfully.\n";
+        std::cout << Color::Green << "Content appended successfully." << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 // ─── Search ──────────────────────────────────────────────────────────────────
@@ -338,7 +339,7 @@ bool FileManager::SearchByMask(const std::string& path, const std::string& mask)
     try
     {
         const auto target = ResolvePath(path);
-        if (!fs::exists(target) || !fs::is_directory(target)) { std::cout << "Directory does not exist.\n"; return false; }
+        if (!fs::exists(target) || !fs::is_directory(target)) { std::cout << Color::Red << "Directory does not exist." << Color::Reset << '\n'; return false; }
 
         bool found = false;
 
@@ -348,20 +349,20 @@ bool FileManager::SearchByMask(const std::string& path, const std::string& mask)
             {
                 try
                 {
-                    std::cout << fs::relative(entry.path(), rootPath).string() << '\n';
+                    std::cout << Color::Cyan << fs::relative(entry.path(), rootPath).string() << Color::Reset << '\n';
                 }
                 catch (...)
                 {
-                    std::cout << entry.path().string() << '\n';
+                    std::cout << Color::Cyan << entry.path().string() << Color::Reset << '\n';
                 }
                 found = true;
             }
         }
 
-        if (!found) std::cout << "No files found.\n";
+        if (!found) std::cout << Color::Yellow << "No files found." << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 // ─── Navigation ──────────────────────────────────────────────────────────────
@@ -374,22 +375,22 @@ bool FileManager::ChangeDirectory(const std::string& path)
         if (path.empty())
         {
             currentPath = rootPath;
-            std::cout << "Directory changed to: " << GetDisplayPath() << '\n';
+            std::cout << Color::Cyan << "Directory changed to: " << GetDisplayPath() << Color::Reset << '\n';
             return true;
         }
 
         const auto target = ResolvePath(path);
-        if (!fs::exists(target) || !fs::is_directory(target)) { std::cout << "Directory does not exist.\n"; return false; }
+        if (!fs::exists(target) || !fs::is_directory(target)) { std::cout << Color::Red << "Directory does not exist." << Color::Reset << '\n'; return false; }
         currentPath = target;
-        std::cout << "Directory changed to: " << GetDisplayPath() << '\n';
+        std::cout << Color::Cyan << "Directory changed to: " << GetDisplayPath() << Color::Reset << '\n';
         return true;
     }
-    catch (const fs::filesystem_error& e) { std::cout << "Error: " << e.what() << '\n'; return false; }
+    catch (const fs::filesystem_error& e) { std::cout << Color::Red << "Error: " << e.what() << Color::Reset << '\n'; return false; }
 }
 
 void FileManager::PrintCurrentDirectory() const
 {
-    std::cout << "Current directory: " << GetDisplayPath() << '\n';
+    std::cout << Color::Cyan << "Current directory: " << GetDisplayPath() << Color::Reset << '\n';
 }
 
 std::string FileManager::GetCurrentDirectory() const

@@ -1,4 +1,5 @@
 #include "CommandDispatcher.h"
+#include "../utils/Color.h"
 
 #include <algorithm>
 #include <iomanip>
@@ -59,11 +60,11 @@ void CommandDispatcher::RegisterCommands()
     handlers["rmdr"] = {
         [this](const Command& cmd) -> DispatchResult {
             if (!HasArguments(cmd, 1)) return DispatchResult::Continue;
-            std::cout << "Delete directory '" << cmd.arguments[0] << "'? [y/N] " << std::flush;
+            std::cout << Color::Yellow << "Delete directory '" << cmd.arguments[0] << "'? [y/N] " << Color::Reset << std::flush;
             char confirm = 'n';
             std::cin.get(confirm);
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            if (confirm != 'y' && confirm != 'Y') { std::cout << "Cancelled.\n"; return DispatchResult::Continue; }
+            if (confirm != 'y' && confirm != 'Y') { std::cout << Color::Yellow << "Cancelled." << Color::Reset << '\n'; return DispatchResult::Continue; }
             if (fileManager.DeleteDirectory(cmd.arguments[0]))
                 logger.Info("Directory deleted: " + cmd.arguments[0]);
             return DispatchResult::Continue;
@@ -136,11 +137,11 @@ void CommandDispatcher::RegisterCommands()
     handlers["rmf"] = {
         [this](const Command& cmd) -> DispatchResult {
             if (!HasArguments(cmd, 1)) return DispatchResult::Continue;
-            std::cout << "Delete file '" << cmd.arguments[0] << "'? [y/N] " << std::flush;
+            std::cout << Color::Yellow << "Delete file '" << cmd.arguments[0] << "'? [y/N] " << Color::Reset << std::flush;
             char confirm = 'n';
             std::cin.get(confirm);
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            if (confirm != 'y' && confirm != 'Y') { std::cout << "Cancelled.\n"; return DispatchResult::Continue; }
+            if (confirm != 'y' && confirm != 'Y') { std::cout << Color::Yellow << "Cancelled." << Color::Reset << '\n'; return DispatchResult::Continue; }
             if (fileManager.DeleteFile(cmd.arguments[0]))
                 logger.Info("File deleted: " + cmd.arguments[0]);
             return DispatchResult::Continue;
@@ -276,7 +277,7 @@ DispatchResult CommandDispatcher::Dispatch(const Command& command)
     const auto it = handlers.find(command.name);
     if (it == handlers.end())
     {
-        std::cout << "Unknown command '" << command.name << "'. Type 'help' for a list.\n";
+        std::cout << Color::Red << "Unknown command '" << command.name << "'." << Color::Reset << " Type 'help' for a list.\n";
         logger.Error("Unknown command: " + command.name);
         return DispatchResult::Continue;
     }
@@ -300,31 +301,31 @@ void CommandDispatcher::ShowHelp() const
         {"System",      {"help", "clear", "clfm"}},
     };
 
-    std::cout << "\nAvailable commands:\n";
+    std::cout << '\n' << Color::Bold << "Available commands:" << Color::Reset << '\n';
 
     for (const auto& [category, names] : categories)
     {
-        std::cout << "\n  " << category << ":\n";
+        std::cout << '\n' << Color::Cyan << Color::Bold << "  " << category << ':' << Color::Reset << '\n';
         for (const auto& name : names)
         {
             const auto it = handlers.find(name);
             if (it == handlers.end()) continue;
-            std::cout << "    " << std::left << std::setw(30)
-                      << it->second.usage << it->second.description << '\n';
+            std::cout << "    " << Color::White << std::left << std::setw(30)
+                      << it->second.usage << Color::Reset << it->second.description << '\n';
         }
     }
 
-    std::cout << "\n  Tips:\n";
-    std::cout << "    Tab          Autocomplete commands and paths\n";
-    std::cout << "    Up / Down    Navigate command history (persisted across sessions)\n";
-    std::cout << "    Quotes       Use \"my folder\" for paths with spaces\n";
+    std::cout << '\n' << Color::Cyan << Color::Bold << "  Tips:" << Color::Reset << '\n';
+    std::cout << "    " << Color::Yellow << "Tab" << Color::Reset << "          Autocomplete commands and paths\n";
+    std::cout << "    " << Color::Yellow << "Up / Down" << Color::Reset << "    Navigate command history (persisted across sessions)\n";
+    std::cout << "    " << Color::Yellow << "Quotes" << Color::Reset << "       Use \"my folder\" for paths with spaces\n";
 }
 
 bool CommandDispatcher::HasArguments(const Command& command, int count)
 {
     if (static_cast<int>(command.arguments.size()) < count)
     {
-        std::cout << "Usage error: '" << command.name << "' requires " << count << " argument(s).\n";
+        std::cout << Color::Red << "Usage error: '" << command.name << "' requires " << count << " argument(s)." << Color::Reset << '\n';
         logger.Error("Invalid argument count for command: " + command.name);
         return false;
     }
