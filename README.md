@@ -87,24 +87,17 @@ File manager closed.
 
 ## Архитектура
 
-```
-+------------------------------------------+
-|              Application                 |  <- оркестратор (app/)
-|  RunAuthLoop()   RunFileManagerLoop()    |
-+--------+-----------------+---------------+
-         |                 |
-+--------v--------+ +------v------------------------------+
-|   auth/         | |   file_system/                     |
-|  AuthService    | |  CommandDispatcher                 |
-|  UserRepository | |    +- unordered_map handlers       |
-|  PasswordHasher | |  CommandParser  (токенизатор)      |
-+-----------------+ |  FileManager    (FS + sandbox)     |
-                    +------------------------------------+
-         |                 |
-+--------v-----------------v---------+
-|   logging/Logger   utils/ReadLine  |  <- общая инфраструктура
-|   (RAII ofstream)  (Tab + история) |
-+------------------------------------+
+```mermaid
+graph TD
+    App["Application<br/>RunAuthLoop · RunFileManagerLoop"]
+    Auth["auth/<br/>AuthService · UserRepository · PasswordHasher"]
+    FS["file_system/<br/>CommandDispatcher · CommandParser · FileManager"]
+    Infra["logging/Logger · utils/ReadLine"]
+
+    App --> Auth
+    App --> FS
+    Auth --> Infra
+    FS --> Infra
 ```
 
 **Правило зависимостей:** каждая стрелка направлена вниз. Нет циклических зависимостей. Каждый слой знает только о слоях ниже него.
